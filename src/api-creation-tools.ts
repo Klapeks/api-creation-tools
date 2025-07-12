@@ -25,6 +25,7 @@ export type ApiFunction<
         : ((body: Body) => Promise<TResponse>)
     ) & {
         __type: "ApiCreationToolsFunction",
+        url: TURL,
         apiOptions: Parameters<typeof createApi<TURL, TResponse, TRequest, TQuery>>[0]
         query: TQuery,
         body: TRequest,
@@ -96,6 +97,7 @@ export function createApi<
 
     call.__type = 'ApiCreationToolsFunction';
     call.apiOptions = options as any;
+    call.url = call.apiOptions.url as any;
     call.query = {} as TQuery;
     call.body = {} as TRequest;
     call.response = {} as TResponse;
