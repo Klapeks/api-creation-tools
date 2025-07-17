@@ -86,7 +86,9 @@ export function createApi<
             url = urls.join('/');
         }
         if (!url.startsWith('/')) url = '/' + url;
-        // if (url.startsWith('/api')) url = url.substring(4); // TODO: if baseURL ends with /api
+        if (getAxios().defaults.baseURL?.endsWith('/api')) {
+            if (url.startsWith('/api')) url = url.substring(4);
+        }
         return (await getAxios().request({
             method: options.request.method,
             url: url,
