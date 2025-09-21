@@ -1,5 +1,7 @@
 
 export const possibleTimedStatistic = [
+    'total', 
+
     'thisDay',
     'thisWeek',
     'thisMonth',
@@ -24,8 +26,6 @@ export type TimedStatisticInfoPart = {
 }
 export type TimedStatisticInfo = {
     count: number,
-    total: number
-
     serverTime: string,
 } & {
     [key in TimedStatisticKey]?: TimedStatisticInfoPart | undefined | null
