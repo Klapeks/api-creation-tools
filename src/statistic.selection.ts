@@ -28,5 +28,5 @@ export type TimedStatisticInfo = {
 
     serverTime: string,
 } & {
-    [key in TimedStatisticKey]: TimedStatisticInfoPart
+    [key in TimedStatisticKey]?: TimedStatisticInfoPart | undefined | null
 }
