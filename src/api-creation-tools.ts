@@ -1,13 +1,13 @@
-import { AxiosInstance } from "axios";
+import globalAxios, { AxiosInstance } from "axios";
 
-let _axios: AxiosInstance | undefined;
-function useAxios(axios: AxiosInstance) {
-    _axios = axios;
-}
-function getAxios(): AxiosInstance {
-    if (!_axios) throw "No axios instance found. Please use apiCreationTools.useAxios(axiosInstance)";
-    return _axios;
-}
+// let _axios: AxiosInstance | undefined;
+// function useAxios(axios: AxiosInstance) {
+//     _axios = axios;
+// }
+// function getAxios(): AxiosInstance {
+//     if (!_axios) throw "No axios instance found. Please use apiCreationTools.useAxios(axiosInstance)";
+//     return _axios;
+// }
 
 export type ApiFunction<
     TURL extends string,
@@ -26,7 +26,7 @@ export type ApiFunction<
     ) & {
         __type: "ApiCreationToolsFunction",
         url: TURL,
-        apiOptions: Parameters<typeof createApi<TURL, TResponse, TRequest, TQuery>>[0]
+        apiOptions: Parameters<typeof createApiEndpoint<TURL, TResponse, TRequest, TQuery>>[0]
         query: TQuery,
         body: TRequest,
         response: TResponse
@@ -40,7 +40,12 @@ export type _PreSendFuncReturn = { urlParams?: any, body?: any, query?: any };
 export type _PreSendFunc<_TF extends ApiFunction<any, any, any>> = [_TF] extends [never]
     ? (() => _PreSendFuncReturn) : ((body: _TF['body']) => _PreSendFuncReturn);
 
-export function createApi<
+
+
+
+
+
+function createApiEndpoint<
     TURL extends string,
     TResponse extends object = {}, 
     TRequest extends object = never, 
@@ -56,8 +61,10 @@ export function createApi<
         query?: TQuery,
         preSend?: _PreSendFunc<_TF>
     },
-    response: TResponse
+    response: TResponse,
+    axios?: AxiosInstance
 }): _TF['return'] {
+    const axios = options.axios || globalAxios;
     const parseBody = (body: any): _PreSendFuncReturn => {
         if (options.request.preSend) return options.request.preSend(body);
         if (options.request.method == 'GET' || options.request.method == 'DELETE') {
@@ -86,10 +93,10 @@ export function createApi<
             url = urls.join('/');
         }
         if (!url.startsWith('/')) url = '/' + url;
-        if (getAxios().defaults.baseURL?.endsWith('/api')) {
+        if (axios.defaults.baseURL?.endsWith('/api')) {
             if (url.startsWith('/api')) url = url.substring(4);
         }
-        return (await getAxios().request({
+        return (await axios.request({
             method: options.request.method,
             url: url,
             data: body.body,
@@ -106,6 +113,25 @@ export function createApi<
     return call as any;
 }
 
+
+
+
+export class ApiContainer {
+
+    readonly axios: AxiosInstance;
+    constructor(axios: AxiosInstance) {
+        this.axios = axios;
+    }
+
+    createApi: typeof createApiEndpoint = (options) => {
+        if (!options.axios) options.axios = this.axios;
+        return createApiEndpoint(options)
+    }
+
+}
+
 export const apiCreationTools = {
-    createApi, getAxios, useAxios
+    createApiFunction(axios: AxiosInstance) {
+        return new ApiContainer(axios).createApi;
+    }
 }
