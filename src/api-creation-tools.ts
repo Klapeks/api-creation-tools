@@ -62,8 +62,8 @@ function createApiEndpoint<
         preSend?: _PreSendFunc<_TF>
     },
     response: TResponse,
-    axios?: AxiosInstance,
-    getAxios?: () => AxiosInstance
+    axios?: any,
+    getAxios?: () => any
 }): _TF['return'] {
     const parseBody = (body: any): _PreSendFuncReturn => {
         if (options.request.preSend) return options.request.preSend(body);
