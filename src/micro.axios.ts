@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 
 type _AI = AxiosInstance;
 export type MicroAxios = AxiosInstance & {

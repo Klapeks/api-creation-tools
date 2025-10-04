@@ -1,4 +1,4 @@
-import globalAxios, { AxiosInstance } from "axios";
+import globalAxios, { type AxiosInstance } from "axios";
 
 // let _axios: AxiosInstance | undefined;
 // function useAxios(axios: AxiosInstance) {
