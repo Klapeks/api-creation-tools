@@ -62,9 +62,9 @@ function createApiEndpoint<
         preSend?: _PreSendFunc<_TF>
     },
     response: TResponse,
-    axios?: AxiosInstance
+    axios?: AxiosInstance,
+    getAxios?: () => AxiosInstance
 }): _TF['return'] {
-    const axios = options.axios || globalAxios;
     const parseBody = (body: any): _PreSendFuncReturn => {
         if (options.request.preSend) return options.request.preSend(body);
         if (options.request.method == 'GET' || options.request.method == 'DELETE') {
@@ -93,6 +93,8 @@ function createApiEndpoint<
             url = urls.join('/');
         }
         if (!url.startsWith('/')) url = '/' + url;
+
+        const axios = options.getAxios?.() || options.axios || globalAxios;
         if (axios.defaults.baseURL?.endsWith('/api')) {
             if (url.startsWith('/api')) url = url.substring(4);
         }
@@ -118,20 +120,23 @@ function createApiEndpoint<
 
 export class ApiContainer {
 
-    readonly axios: AxiosInstance;
-    constructor(axios: AxiosInstance) {
-        this.axios = axios;
+    private _axios: AxiosInstance | undefined;
+    constructor(axios?: AxiosInstance) {
+        this._axios = axios;
+        this.getAxios = this.getAxios.bind(this);
+    }
+
+    setAxios(axios: AxiosInstance) {
+        this._axios = axios;
+    }
+    getAxios() {
+        if (!this._axios) throw "No axios instance setted";
+        return this._axios;
     }
 
     createApi: typeof createApiEndpoint = (options) => {
-        if (!options.axios) options.axios = this.axios;
+        options.getAxios = this.getAxios;
         return createApiEndpoint(options)
     }
 
-}
-
-export const apiCreationTools = {
-    createApiFunction(axios: AxiosInstance) {
-        return new ApiContainer(axios).createApi;
-    }
 }
