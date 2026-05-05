@@ -1,33 +1,37 @@
-import axios, { type AxiosInstance } from "axios";
+import { globalAxios, IAxios } from "./utils/i.axios.types";
 
-type _AI = AxiosInstance;
-export type MicroAxios = AxiosInstance & {
+export type MicroAxios<Ax extends IAxios = IAxios> = Ax & {
     setHeader(key: string, value: any): void;
-    getData<T = any>(...params: Parameters<_AI['get']>): Promise<T>,
-    postData<T = any>(...params: Parameters<_AI['post']>): Promise<T>,
-    patchData<T = any>(...params: Parameters<_AI['patch']>): Promise<T>,
-    deleteData<T = any>(...params: Parameters<_AI['delete']>): Promise<T>,
+    getData<T = any>(...params: Parameters<Ax['get']>): Promise<T>,
+    postData<T = any>(...params: Parameters<Ax['post']>): Promise<T>,
+    putData<T = any>(...params: Parameters<Ax['post']>): Promise<T>,
+    patchData<T = any>(...params: Parameters<Ax['patch']>): Promise<T>,
+    deleteData<T = any>(...params: Parameters<Ax['delete']>): Promise<T>,
     dummyInit(): void;
 }
 
-export function microAxiosOf(axios: AxiosInstance, logger?: any): MicroAxios {
-    const api = axios as MicroAxios;
+export function microAxiosOf<Ax extends IAxios>(axios: Ax, logger?: any): MicroAxios<Ax> {
+    const api = axios as any as MicroAxios<Ax>;
 
     api.setHeader = async function(key: string, value: any) {
-        api.defaults.headers[key] = value;
-        logger?.debug?.("Setting api header of", key);
+        (api as any).defaults.headers[key] = value;
+        // api.defaults.headers.common[key] = val ue;
+        logger?.debug?.("Setting api header of:", key);
     };
-    api.getData = async function (...params: Parameters<_AI['get']>) {
-        return (await api.get(...params)).data;
+    api.getData = async function (...params: Parameters<Ax['get']>) {
+        return (await api.get.apply(api, params)).data;
     };
-    api.postData = async function (...params: Parameters<_AI['post']>) {
-        return (await api.post(...params)).data;
+    api.postData = async function (...params: Parameters<Ax['post']>) {
+        return (await api.post.apply(api, params)).data;
     };
-    api.deleteData = async function (...params: Parameters<_AI['delete']>) {
-        return (await api.delete(...params)).data;
+    api.deleteData = async function (...params: Parameters<Ax['delete']>) {
+        return (await api.delete.apply(api, params)).data;
     };
-    api.patchData = async function (...params: Parameters<_AI['patch']>) {
-        return (await api.patch(...params)).data;
+    api.patchData = async function (...params: Parameters<Ax['patch']>) {
+        return (await api.patch.apply(api, params)).data;
+    };
+    api.putData = async function (...params: Parameters<Ax['put']>) {
+        return (await api.put.apply(api, params)).data;
     };
     api.dummyInit = () => {};
     
@@ -35,7 +39,9 @@ export function microAxiosOf(axios: AxiosInstance, logger?: any): MicroAxios {
 }
 
 export function createMicroAxios(uri: string, logger?: any, httpsAgent?: any) {
-    const api = axios.create({
+    if (!globalAxios) throw "No 'axios' module found";
+    if (!('create' in globalAxios)) throw "Invalid 'axios' module";
+    const api: IAxios = (globalAxios as any).create({
         baseURL: uri, 
         httpsAgent,
         withCredentials: false,

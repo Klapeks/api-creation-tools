@@ -1,13 +1,4 @@
-import globalAxios, { type AxiosInstance } from "axios";
-
-// let _axios: AxiosInstance | undefined;
-// function useAxios(axios: AxiosInstance) {
-//     _axios = axios;
-// }
-// function getAxios(): AxiosInstance {
-//     if (!_axios) throw "No axios instance found. Please use apiCreationTools.useAxios(axiosInstance)";
-//     return _axios;
-// }
+import { globalAxios, IAxios } from "./utils/i.axios.types";
 
 export type ApiFunction<
     TURL extends string,
@@ -39,9 +30,6 @@ export type _PreSendFuncReturn = { urlParams?: any, body?: any, query?: any };
 
 export type _PreSendFunc<_TF extends ApiFunction<any, any, any>> = [_TF] extends [never]
     ? (() => _PreSendFuncReturn) : ((body: _TF['body']) => _PreSendFuncReturn);
-
-
-
 
 
 
@@ -95,6 +83,7 @@ function createApiEndpoint<
         if (!url.startsWith('/')) url = '/' + url;
 
         const axios = options.getAxios?.() || options.axios || globalAxios;
+        if (!axios) throw new Error("Axios not found");
         if (axios.defaults.baseURL?.endsWith('/api')) {
             if (url.startsWith('/api')) url = url.substring(4);
         }
@@ -117,19 +106,18 @@ function createApiEndpoint<
 
 
 
+export class ApiContainer<TAxios extends IAxios = IAxios> {
 
-export class ApiContainer {
-
-    private _axios: AxiosInstance | undefined;
-    constructor(axios?: AxiosInstance) {
+    private _axios: TAxios | undefined;
+    constructor(axios?: TAxios) {
         this._axios = axios;
         this.getAxios = this.getAxios.bind(this);
     }
 
-    setAxios(axios: AxiosInstance) {
+    setAxios(axios: TAxios) {
         this._axios = axios;
     }
-    getAxios() {
+    getAxios(): TAxios {
         if (!this._axios) throw "No axios instance setted";
         return this._axios;
     }
