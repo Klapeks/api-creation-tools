@@ -44,7 +44,7 @@ function createApiEndpoint<
     // description?: string,
     url: TURL,
     request: {
-        method: "POST" | "GET" | "DELETE" | "PATCH",// | "PUT",
+        method: "POST" | "GET" | "DELETE" | "PATCH" | "PUT",
         body?: TRequest,
         query?: TQuery,
         preSend?: _PreSendFunc<_TF>

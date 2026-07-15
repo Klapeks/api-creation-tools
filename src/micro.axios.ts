@@ -4,7 +4,7 @@ export type MicroAxios<Ax extends IAxios = IAxios> = Ax & {
     setHeader(key: string, value: any): void;
     getData<T = any>(...params: Parameters<Ax['get']>): Promise<T>,
     postData<T = any>(...params: Parameters<Ax['post']>): Promise<T>,
-    putData<T = any>(...params: Parameters<Ax['post']>): Promise<T>,
+    putData<T = any>(...params: Parameters<Ax['put']>): Promise<T>,
     patchData<T = any>(...params: Parameters<Ax['patch']>): Promise<T>,
     deleteData<T = any>(...params: Parameters<Ax['delete']>): Promise<T>,
     dummyInit(): void;
