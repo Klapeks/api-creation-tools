@@ -32,7 +32,6 @@ export type _PreSendFunc<_TF extends ApiFunction<any, any, any>> = [_TF] extends
     ? (() => _PreSendFuncReturn) : ((body: _TF['body']) => _PreSendFuncReturn);
 
 
-
 function createApiEndpoint<
     TURL extends string,
     TResponse extends object = {}, 
@@ -44,8 +43,11 @@ function createApiEndpoint<
     // description?: string,
     url: TURL,
     request: {
-        method: "POST" | "GET" | "DELETE" | "PATCH" | "PUT",
+        method: "POST" | "PATCH" | "PUT",
         body?: TRequest,
+        preSend?: _PreSendFunc<_TF>
+    } | {
+        method: "GET" | "DELETE",
         query?: TQuery,
         preSend?: _PreSendFunc<_TF>
     },
