@@ -15,9 +15,13 @@ export interface SelectOptions<T extends object> {
 }
 
 export namespace SelectOptions {
+    export const IsNull = "{is_null}" as const;
+    export const IsNotNull = "{is_not_null}" as const;
+
     export type Where<T extends object> = {
         [key in keyof T]?: T[key] | `{like}=${string}` 
-            | `{not}=${string}` | `{equals}=${string}` | null
+            | `{not}=${string}` | `{equals}=${string}`
+            | '{is_null}' | '{is_not_null}' | null
     } & {
         $or?: Where<T>[] | null,
         $and?: Where<T>[] | null,
