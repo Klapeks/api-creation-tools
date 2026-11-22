@@ -45,7 +45,9 @@ function createApiEndpoint<
     request: {
         method: "POST" | "PATCH" | "PUT",
         body?: TRequest,
-        preSend?: _PreSendFunc<_TF>
+        preSend?: _PreSendFunc<_TF>,
+        /** @deprecated */
+        query?: TQuery,
     } | {
         method: "GET" | "DELETE",
         query?: TQuery,
